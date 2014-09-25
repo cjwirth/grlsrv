@@ -96,7 +96,7 @@ func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	musics, _, musErr := parseMusics(rows)
+	musics, _, _ := parseMusics(rows)
 
 	data := map[string]interface{}{}
 	data["name"] = playlist.Name
