@@ -14,6 +14,10 @@ func RenderJSON(w http.ResponseWriter, obj interface{}) {
 	w.Write(json)
 }
 
+func RenderError(w http.ResponseWriter, err error) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+}
+
 func strLen(input string) int {
 	return len([]rune(input))
 }
@@ -68,31 +72,9 @@ func GetMusics(w http.ResponseWriter, r *http.Request) {
 	query, qps := makeQuery("select * from music", getParams, map[string]string{"artist_id": "=", "title": "like"})
 	log.Println("query: " + query)
 
-	// query := "select * from music "
-	// qps := []interface{}{}
-
-	// artist := getParams.Get("artist_id")
-	// if strLen(artist) > 0 {
-	// 	query += "where artist_id = ? "
-	// 	qps = append(qps, artist)
-	// }
-
-	// title := getParams.Get("title")
-	// if strLen(title) > 0 {
-	// 	query += ""
-	// }
-
-	// query += "limit ?"
-	// limit := getParams.Get("limit")
-	// if strLen(limit) > 0 {
-	// 	qps = append(qps, limit)
-	// } else {
-	// 	qps = append(qps, 100)
-	// }
-
 	rows, err := Database.Query(query, qps...)
 	if err != nil {
-		log.Fatal(err)
+		RenderError(w, err)
 	}
 	defer rows.Close()
 
@@ -102,17 +84,17 @@ func GetMusics(w http.ResponseWriter, r *http.Request) {
 		music := Music{}
 		err := rows.Scan(&music.Id, &music.ArtistId, &music.Title, &music.Outline)
 		if err != nil {
-			log.Fatal(err)
+			RenderError(w, err)
 		} else {
 			musics = append(musics, music)
 		}
-
 	}
 
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		RenderError(w, err)
 	}
+
 	RenderJSON(w, musics)
 }
 

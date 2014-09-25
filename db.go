@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/totec")
+	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/totec?charset=utf8mb4,utf8")
 	if err != nil {
 		log.Fatal(err)
 	}
