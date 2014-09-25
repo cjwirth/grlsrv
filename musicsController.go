@@ -21,8 +21,16 @@ func GetMusics(w http.ResponseWriter, r *http.Request) {
 
 	artist, hasArtist := params["artist_id"]
 	if hasArtist {
-		query += " where artist_id = ?"
+		query += "where artist_id = ? "
 		qps = append(qps, artist)
+	}
+
+	query += "limit ?"
+	limit, hasLimit := params["limit"]
+	if hasLimit {
+		qps = append(qps, limit)
+	} else {
+		qps = append(qps, 100)
 	}
 
 	rows, err := Database.Query(query, qps...)
