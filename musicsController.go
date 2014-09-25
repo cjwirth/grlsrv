@@ -120,7 +120,34 @@ func GetMusicTimes(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetRecentMusics(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	name := params["name"]
-	w.Write([]byte("Hello " + name))
+	r.ParseForm()
+	getParams := r.Form
+
+	sql := "select * from play_history order by created_at desc"
+	query, qps := makeQuery(sql, getParams, map[string]string{})
+
+	rows, err := Database.Query(query, qps...)
+	if err != nil {
+		RenderError(w, err)
+	}
+	defer rows.Close()
+
+	histories := []PlayHistory{}
+
+	for rows.Next() {
+		history := PlayHistory{}
+		err := rows.Scan(&history.Id, &history.MusicId, &history.CreatedAt)
+		if err != nil {
+			RenderError(w, err)
+		} else {
+			histories = append(histories, history)
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		RenderError(w, err)
+	}
+
+	RenderJSON(w, histories)
 }
