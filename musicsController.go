@@ -36,7 +36,11 @@ func makeQuery(begin string, getParams url.Values, queryParams map[string]string
 			} else {
 				query += "and "
 			}
-			query += key + " " + value + " " + "? "
+			if value == "like" {
+				query += key + " " + value + " " + "\"%?%\""
+			} else {
+				query += key + " " + value + " " + "? "
+			}
 			params = append(params, param)
 		}
 	}
