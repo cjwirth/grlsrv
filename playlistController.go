@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -43,17 +44,16 @@ func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 	rows, err := Database.Query(query, qps...)
 	if err != nil {
 		Render404(w)
+		log.Println(err)
 		return
 	}
 	defer rows.Close()
 
-	playlists, err := parsePlaylists(rows)
-	if err != nil {
-
-	}
+	playlists, _ := parsePlaylists(rows)
 
 	if len(playlists) == 0 {
 		Render404(w)
+		log.Println(err)
 	}
 
 	RenderJSON(w, playlists[0])
