@@ -84,7 +84,7 @@ func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 
 	//	getParams.Set("playlist_name", name)
 	//	query, qps = makeQuery("select * from music inner join playlist_detail on music.id=playlist_detail.music_id where playlist_name = ? order by playlist_detail.number asc", getParams, queryParams)
-	query = "select * from music inner join playlist_detail on music.id=playlist_detail.music_id where playlist_name = \"?\" order by playlist_detail.number asc"
+	query = "select * from music inner join playlist_detail on music.id=playlist_detail.music_id where playlist_name = ? order by playlist_detail.number asc"
 	rows, err = Database.Query(query, name)
 	if err != nil {
 		Render404(w)
