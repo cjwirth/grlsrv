@@ -49,6 +49,11 @@ func GetMusicId(w http.ResponseWriter, r *http.Request) {
 	urlParams := mux.Vars(r)
 	id := urlParams["id"]
 
+	if id == "recent" {
+		GetRecentMusics(w, r)
+		return
+	}
+
 	getParams.Set("id", id)
 	getParams.Set("limit", "1")
 	query, qps := makeQuery("select * from music", getParams, map[string]string{"id": "="})
