@@ -30,17 +30,20 @@ func parsePlaylists(rows *sql.Rows) (playlists []Playlist, theError error) {
 	return
 }
 
-func parseMusics(rows *sql.Rows) (musics []Music, theError error) {
+func parseMusics(rows *sql.Rows) (musics []Music, plDetails []PlaylistDetail, theError error) {
 	musics = []Music{}
+	plDetails = []PlaylistDetail{}
 
 	for rows.Next() {
 		music := Music{}
-		err := rows.Scan(&music.Id, &music.ArtistId, &music.Title, &music.Outline)
+		playlistDetail := PlaylistDetail{}
+		err := rows.Scan(&music.Id, &music.ArtistId, &music.Title, &music.Outline, &playlistDetail.PlaylistName, &playlistDetail.Number, &playlistDetail.MusicId)
 		if err != nil {
 			theError = err
 			return
 		} else {
 			musics = append(musics, music)
+			plDetails = append(plDetails, playlistDetail)
 		}
 	}
 
@@ -93,10 +96,7 @@ func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	musics, musErr := parseMusics(rows)
-	if musErr != nil {
-		log.Println(err)
-	}
+	musics, _, musErr := parseMusics(rows)
 
 	data := map[string]interface{}{}
 	data["name"] = playlist.Name
