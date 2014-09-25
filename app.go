@@ -9,7 +9,7 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api/musics", GetMusics).Methods("GET")
-	router.HandleFunc("/api/musics/{id}", GetMusicId).Methods("GET")
+	router.HandleFunc("/api/musics/{id[0-9]+}", GetMusicId).Methods("GET")
 	router.HandleFunc("/api/musics", GetMusics).Methods("POST")
 	router.HandleFunc("/api/musics/{id}", PutMusics).Methods("PUT")
 	router.HandleFunc("/api/musics/{id}", DeleteMusics).Methods("DELETE")
