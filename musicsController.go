@@ -13,21 +13,27 @@ func RenderJSON(w http.ResponseWriter, obj interface{}) {
 	w.Write(json)
 }
 
+func strLen(input string) int {
+	return len([]rune(input))
+}
+
 func GetMusics(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+	r.ParseForm()
+	getParams := r.Form
+	//	urlParams := mux.Vars(r)
 
 	query := "select * from music "
 	qps := []interface{}{}
 
-	artist, hasArtist := params["artist_id"]
-	if hasArtist {
+	artist := getParams.Get("artist_id")
+	if strLen(artist) > 0 {
 		query += "where artist_id = ? "
 		qps = append(qps, artist)
 	}
 
 	query += "limit ?"
-	limit, hasLimit := params["limit"]
-	if hasLimit {
+	limit := getParams.Get("limit")
+	if strLen(limit) > 0 {
 		qps = append(qps, limit)
 	} else {
 		qps = append(qps, 100)
