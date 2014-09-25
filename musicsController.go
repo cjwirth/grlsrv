@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/mux"
 )
@@ -17,27 +18,71 @@ func strLen(input string) int {
 	return len([]rune(input))
 }
 
+func makeQuery(begin string, getParams url.Values, queryParams map[string]string) (query string, params []interface{}) {
+	query = begin + " "
+	params = []interface{}{}
+
+	hasWhere := false
+	for key, value := range queryParams {
+		param := getParams.Get(key)
+		if strLen(param) > 0 {
+			if !hasWhere {
+				query += "where "
+				hasWhere = true
+			}
+			query += key + " " + value + " " + "? "
+			params = append(params, param)
+		}
+	}
+
+	start := getParams.Get("start")
+	limit := getParams.Get("limit")
+
+	if strLen(start) > 0 || strLen(limit) > 0 {
+		query += " limit "
+		if strLen(start) > 0 {
+			query += "?, "
+			params = append(params, start)
+		}
+		query += "?"
+		if strLen(limit) > 0 {
+			params = append(params, limit)
+		} else {
+			params = append(params, 100)
+		}
+	}
+	return
+}
+
 func GetMusics(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	getParams := r.Form
 	//	urlParams := mux.Vars(r)
 
-	query := "select * from music "
-	qps := []interface{}{}
+	query, qps := makeQuery("select * from music", getParams, map[string]string{"artist_id": "=", "title": "like"})
+	log.Println("query: " + query)
 
-	artist := getParams.Get("artist_id")
-	if strLen(artist) > 0 {
-		query += "where artist_id = ? "
-		qps = append(qps, artist)
-	}
+	// query := "select * from music "
+	// qps := []interface{}{}
 
-	query += "limit ?"
-	limit := getParams.Get("limit")
-	if strLen(limit) > 0 {
-		qps = append(qps, limit)
-	} else {
-		qps = append(qps, 100)
-	}
+	// artist := getParams.Get("artist_id")
+	// if strLen(artist) > 0 {
+	// 	query += "where artist_id = ? "
+	// 	qps = append(qps, artist)
+	// }
+
+	// title := getParams.Get("title")
+	// if strLen(title) > 0 {
+	// 	query += ""
+	// }
+
+	// query += "limit ?"
+	// limit := getParams.Get("limit")
+	// if strLen(limit) > 0 {
+	// 	qps = append(qps, limit)
+	// } else {
+	// 	qps = append(qps, 100)
+	// }
 
 	rows, err := Database.Query(query, qps...)
 	if err != nil {
