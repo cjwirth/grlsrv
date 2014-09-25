@@ -25,7 +25,7 @@ func GetMusics(w http.ResponseWriter, r *http.Request) {
 		qps = append(qps, artist)
 	}
 
-	rows, err := Database.Query(query, qps)
+	rows, err := Database.Query(query, qps...)
 	if err != nil {
 		log.Fatal(err)
 	}
