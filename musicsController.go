@@ -14,10 +14,18 @@ func RenderJSON(w http.ResponseWriter, obj interface{}) {
 }
 
 func GetMusics(w http.ResponseWriter, r *http.Request) {
-	//	params := mux.Vars(r)
-	//	name := params["name"]
+	params := mux.Vars(r)
 
-	rows, err := Database.Query("select * from music limit 100")
+	query := "select * from music "
+	qps := []interface{}{}
+
+	artist, hasArtist := params["artist_id"]
+	if hasArtist {
+		query += " where artist_id = ?"
+		qps = append(qps, artist)
+	}
+
+	rows, err := Database.Query(query, qps)
 	if err != nil {
 		log.Fatal(err)
 	}

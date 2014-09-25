@@ -3,31 +3,31 @@ package main
 import "time"
 
 type Artist struct {
-	Id      uint64
-	Name    string
-	Outline string
+	Id      uint64 `json:"id"`
+	Name    string `json:"name"`
+	Outline string `json:"outline"`
 }
 
 type Music struct {
-	Id       uint64
-	ArtistId uint64
-	Title    string
-	Outline  string
+	Id       uint64 `json:"id"`
+	ArtistId uint64 `json:"artist_id"`
+	Title    string `json:"title"`
+	Outline  string `json:"outline"`
 }
 
 type Playlist struct {
-	Name    string
-	Outline string
+	Name    string `json:"name"`
+	Outline string `json:"outline"`
 }
 
 type PlaylistDetail struct {
-	PlaylistName string
-	MusicId      uint64
-	Number       uint64
+	PlaylistName string `json:"playlist_name"`
+	MusicId      uint64 `json:"music_id"`
+	Number       uint64 `json:"number"`
 }
 
 type PlayHistory struct {
-	Id        uint64
-	MusicId   uint64
-	CreatedAt time.Time
+	Id        uint64    `json:"id"`
+	MusicId   uint64    `json:"music_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
