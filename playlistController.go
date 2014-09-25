@@ -30,6 +30,28 @@ func parsePlaylists(rows *sql.Rows) (playlists []Playlist, theError error) {
 	return
 }
 
+func parseMusics(rows *sql.Rows) (musics []Music, theError error) {
+	musics = []Music{}
+
+	for rows.Next() {
+		music := Music{}
+		err := rows.Scan(&music.Id, &music.ArtistId, &music.Title, &music.Outline)
+		if err != nil {
+			theError = err
+			return
+		} else {
+			musics = append(musics, music)
+		}
+	}
+
+	err := rows.Err()
+	if err != nil {
+		theError = err
+		return
+	}
+	return
+}
+
 func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	getParams := r.Form
@@ -56,7 +78,29 @@ func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	RenderJSON(w, playlists[0])
+	playlist := playlists[0]
+
+	// get music
+
+	//	getParams.Set("playlist_name", name)
+	//	query, qps = makeQuery("select * from music inner join playlist_detail on music.id=playlist_detail.music_id where playlist_name = ? order by playlist_detail.number asc", getParams, queryParams)
+	query = "select * from music inner join playlist_detail on music.id=playlist_detail.music_id where playlist_name = ? order by playlist_detail.number asc"
+	rows, err = Database.Query(query, name)
+	if err != nil {
+		Render404(w)
+		log.Println(err)
+		return
+	}
+	defer rows.Close()
+
+	musics, _ := parseMusics(rows)
+
+	data := map[string]interface{}{}
+	data["name"] = playlist.Name
+	data["outline"] = playlist.Outline
+	data["musics"] = musics
+
+	RenderJSON(w, data)
 }
 
 func CreatePlaylist(w http.ResponseWriter, r *http.Request) {
