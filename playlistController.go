@@ -38,7 +38,7 @@ func GetPlaylist(w http.ResponseWriter, r *http.Request) {
 	getParams.Set("name", name)
 	getParams.Set("limit", "1")
 
-	params := map[string]string{"name": "=", "limit": "="}
+	params := map[string]string{"name": "="}
 	query, qps := makeQuery("select * from playlist", getParams, params)
 
 	rows, err := Database.Query(query, qps...)
