@@ -41,7 +41,8 @@ func makeQuery(begin string, getParams url.Values, queryParams map[string]string
 				query += "and "
 			}
 			if value == "like" {
-				query += key + " " + value + " " + "'%' || ? || '%'"
+				query += key + " " + value + " ? "
+				param = "%" + param + "%"
 			} else {
 				query += key + " " + value + " " + "? "
 			}
@@ -116,6 +117,9 @@ func GetMusicId(w http.ResponseWriter, r *http.Request) {
 	getParams.Set("id", id)
 	getParams.Set("limit", "1")
 	query, qps := makeQuery("select * from music", getParams, map[string]string{"id": "="})
+
+	js, _ := json.Marshal(qps)
+	log.Println("query: " + query + " params: " + string(js))
 
 	rows, err := Database.Query(query, qps...)
 	if err != nil {
