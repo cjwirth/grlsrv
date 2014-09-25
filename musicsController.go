@@ -18,6 +18,10 @@ func RenderError(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 }
 
+func Render404(w http.ResponseWriter) {
+	http.Error(w, http.StatusText(404), http.StatusNotFound)
+}
+
 func strLen(input string) int {
 	return len([]rune(input))
 }
@@ -37,7 +41,7 @@ func makeQuery(begin string, getParams url.Values, queryParams map[string]string
 				query += "and "
 			}
 			if value == "like" {
-				query += key + " " + value + " " + "\"%?%\""
+				query += key + " " + value + " " + "'%' || ? || '%'"
 			} else {
 				query += key + " " + value + " " + "? "
 			}
@@ -103,9 +107,51 @@ func GetMusics(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMusicId(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	name := params["name"]
-	w.Write([]byte("Hello " + name))
+	r.ParseForm()
+	getParams := r.Form
+
+	urlParams := mux.Vars(r)
+	id := urlParams["id"]
+	if id == nil {
+		Render404(w)
+		return
+	}
+
+	getParams.Set("id", id)
+	getParams.Set("limit", 1)
+	query, qps := makeQuery("select * from music", getParams, map[string]string{"id": "="})
+
+	rows, err := Database.Query(query, qps...)
+	if err != nil {
+		Render404(w)
+		return
+	}
+	defer rows.Close()
+
+	musics := []Music{}
+
+	for rows.Next() {
+		music := Music{}
+		err := rows.Scan(&music.Id, &music.ArtistId, &music.Title, &music.Outline)
+		if err != nil {
+			Render404(w)
+		} else {
+			musics = append(musics, music)
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		Render404(w)
+	}
+
+	if len(musics) == 0 {
+		Render404(w)
+	}
+
+	music := musics[0]
+
+	RenderJSON(w, music)
 }
 
 func PostMusics(w http.ResponseWriter, r *http.Request) {
