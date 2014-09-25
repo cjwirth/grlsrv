@@ -28,6 +28,6 @@ type PlaylistDetail struct {
 
 type PlayHistory struct {
 	Id        uint64    `json:"-"`
-	MusicId   uint64    `json:"music_id"`
+	MusicId   uint64    `json:"id"`
 	CreatedAt time.Time `json:"last_played"`
 }
