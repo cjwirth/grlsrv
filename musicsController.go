@@ -134,6 +134,7 @@ func GetRecentMusics(w http.ResponseWriter, r *http.Request) {
 	rows, err := Database.Query(query, qps...)
 	if err != nil {
 		RenderError(w, err)
+		return
 	}
 	defer rows.Close()
 
@@ -144,6 +145,7 @@ func GetRecentMusics(w http.ResponseWriter, r *http.Request) {
 		err := rows.Scan(&history.Id, &history.MusicId, &history.CreatedAt)
 		if err != nil {
 			RenderError(w, err)
+			return
 		} else {
 			histories = append(histories, history)
 		}
@@ -152,6 +154,7 @@ func GetRecentMusics(w http.ResponseWriter, r *http.Request) {
 	err = rows.Err()
 	if err != nil {
 		RenderError(w, err)
+		return
 	}
 
 	RenderJSON(w, histories)
