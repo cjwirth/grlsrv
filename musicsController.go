@@ -29,6 +29,8 @@ func makeQuery(begin string, getParams url.Values, queryParams map[string]string
 			if !hasWhere {
 				query += "where "
 				hasWhere = true
+			} else {
+				query += "and "
 			}
 			query += key + " " + value + " " + "? "
 			params = append(params, param)
@@ -38,8 +40,9 @@ func makeQuery(begin string, getParams url.Values, queryParams map[string]string
 	start := getParams.Get("start")
 	limit := getParams.Get("limit")
 
+	query += " limit "
 	if strLen(start) > 0 || strLen(limit) > 0 {
-		query += " limit "
+
 		if strLen(start) > 0 {
 			query += "?, "
 			params = append(params, start)
@@ -50,6 +53,9 @@ func makeQuery(begin string, getParams url.Values, queryParams map[string]string
 		} else {
 			params = append(params, 100)
 		}
+	} else {
+		query += "?"
+		params = append(params, 100)
 	}
 	return
 }
